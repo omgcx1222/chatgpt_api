@@ -33,8 +33,9 @@ router.post('/chat-process', auth, async (req, res) => {
       }
       chat.text = stringToHex(chat.text)
       chat.delta = stringToHex(chat.delta)
-      if (chat.detail?.choices && Array.isArray(chat.detail?.choices))
-        chat.detail.choices = chat.detail.choices.map(item => item.delta.content = stringToHex(item.delta.content))
+      chat.detail = {}
+      // if (chat.detail?.choices && Array.isArray(chat.detail?.choices))
+      //   chat.detail.choices = chat.detail.choices.map(item => item.delta.content = stringToHex(item.delta.content))
 
       res.write(firstChunk ? JSON.stringify(chat) : `\n${JSON.stringify(chat)}`)
       firstChunk = false
