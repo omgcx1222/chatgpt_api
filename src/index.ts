@@ -7,7 +7,7 @@ import { isNotEmptyString } from './utils/is'
 const app = express()
 const router = express.Router()
 
-app.use(express.static('public'))
+// app.use(express.static('public'))
 app.use(express.json())
 
 app.all('*', (_, res, next) => {
@@ -24,6 +24,8 @@ router.post('/chat-process', auth, async (req, res) => {
     const { prompt, options = {} } = req.body as { prompt: string; options?: ChatContext }
     let firstChunk = true
     await chatReplyProcess(prompt, options, (chat: ChatMessage) => {
+      chat.buffText = Buffer.from(chat.text)
+      chat.buffText2 = Buffer.from(chat.text, 'base64')
       res.write(firstChunk ? JSON.stringify(chat) : `\n${JSON.stringify(chat)}`)
       firstChunk = false
     })
