@@ -25,13 +25,17 @@ router.post('/chat-process', auth, async (req, res) => {
     const { prompt, options = {} } = req.body as { prompt: string; options?: ChatContext }
     let firstChunk = true
     await chatReplyProcess(prompt, options, (chat: ChatMessage) => {
-      chat.delta = stringToHex(chat.delta)
-      chat.text = stringToHex(chat.text)
-      chat.choices = chat.choices.map((item) => {
-        if (item.delta.context)
-          item.delta.context = stringToHex(item?.delta?.context)
-        return item
-      })
+      if (chat.delta)
+        chat.delta = stringToHex(chat.delta)
+      if (chat.text)
+        chat.text = stringToHex(chat.text)
+      if (chat.choices) {
+        chat.choices = chat.choices.map((item) => {
+          if (item.delta.context)
+            item.delta.context = stringToHex(item?.delta?.context)
+          return item
+        })
+      }
 
       res.write(firstChunk ? JSON.stringify(chat) : `\n${JSON.stringify(chat)}`)
       firstChunk = false
