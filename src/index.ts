@@ -3,6 +3,7 @@ import type { ChatContext, ChatMessage } from './chatgpt'
 import { chatConfig, chatReplyProcess, currentModel } from './chatgpt'
 import { auth } from './middleware/auth'
 import { isNotEmptyString } from './utils/is'
+import { stringToHex } from './utils'
 
 const app = express()
 const router = express.Router()
@@ -26,6 +27,8 @@ router.post('/chat-process', auth, async (req, res) => {
     await chatReplyProcess(prompt, options, (chat: ChatMessage) => {
       if (dataType === 'wx') {
         chat.text = ''
+        if (chat.delta)
+          chat.delta = stringToHex(chat.delta)
         if (chat.choices) {
           chat.choices = chat.choices.map((item) => {
             if (item?.delta?.context)
