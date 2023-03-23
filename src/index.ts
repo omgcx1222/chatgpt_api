@@ -3,6 +3,7 @@ import type { ChatContext, ChatMessage } from './chatgpt'
 import { chatConfig, chatReplyProcess, currentModel } from './chatgpt'
 import { auth } from './middleware/auth'
 import { isNotEmptyString } from './utils/is'
+import { stringToHex } from './utils'
 
 const app = express()
 const router = express.Router()
@@ -24,15 +25,13 @@ router.post('/chat-process', auth, async (req, res) => {
     const { prompt, options = {} } = req.body as { prompt: string; options?: ChatContext }
     let firstChunk = true
     await chatReplyProcess(prompt, options, (chat: ChatMessage) => {
-      // function stringToHex(str) {
-      //   if (typeof str !== 'string')
-      //     str = JSON.stringify(str)
-
-      //   const arr = []
-      //   for (let i = 0; i < str.length; i++) arr[i] = `00${str.charCodeAt(i).toString(16)}`.slice(-4)
-
-      //   return `\\u${arr.join('\\u')}`
-      // }
+      chat.delta = stringToHex(chat.delta)
+      chat.text = stringToHex(chat.text)
+      chat.choices = chat.choices.map((item) => {
+        if (item.delta.context)
+          item.delta.context = stringToHex(item?.delta?.context)
+        return item
+      })
 
       res.write(firstChunk ? JSON.stringify(chat) : `\n${JSON.stringify(chat)}`)
       firstChunk = false
