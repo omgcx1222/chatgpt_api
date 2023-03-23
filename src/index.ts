@@ -3,7 +3,6 @@ import type { ChatContext, ChatMessage } from './chatgpt'
 import { chatConfig, chatReplyProcess, currentModel } from './chatgpt'
 import { auth } from './middleware/auth'
 import { isNotEmptyString } from './utils/is'
-import { stringToHex } from './utils'
 
 const app = express()
 const router = express.Router()
@@ -22,20 +21,30 @@ router.post('/chat-process', auth, async (req, res) => {
   res.setHeader('Content-type', 'application/octet-stream')
 
   try {
-    const { prompt, options = {} } = req.body as { prompt: string; options?: ChatContext }
+    const { prompt, options = {}, dataType = 'browser' } = req.body as { prompt: string; options?: ChatContext; dataType: 'wx' | 'browser' }
     let firstChunk = true
     await chatReplyProcess(prompt, options, (chat: ChatMessage) => {
-      if (chat.delta)
-        chat.delta = stringToHex(chat.delta)
-      if (chat.text)
-        chat.text = stringToHex(chat.text)
-      if (chat.choices) {
-        chat.choices = chat.choices.map((item) => {
-          if (item.delta.context)
-            item.delta.context = stringToHex(item?.delta?.context)
-          return item
-        })
+      if (dataType === 'wx') {
+        chat.text = ''
+        if (chat.choices) {
+          chat.choices = chat.choices.map((item) => {
+            if (item?.delta?.context)
+              item.delta.context = ''
+            return item
+          })
+        }
       }
+      // if (chat.delta)
+      //   chat.delta = null
+      // if (chat.text)
+      //   chat.text = stringToHex(chat.text)
+      // if (chat.choices) {
+      //   chat.choices = chat.choices.map((item) => {
+      //     if (item.delta.context)
+      //       item.delta.context = stringToHex(item?.delta?.context)
+      //     return item
+      //   })
+      // }
 
       res.write(firstChunk ? JSON.stringify(chat) : `\n${JSON.stringify(chat)}`)
       firstChunk = false
