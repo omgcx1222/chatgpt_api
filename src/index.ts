@@ -24,17 +24,17 @@ router.post('/chat-process', auth, async (req, res) => {
     const { prompt, options = {} } = req.body as { prompt: string; options?: ChatContext }
     let firstChunk = true
     await chatReplyProcess(prompt, options, (chat: ChatMessage) => {
-      function stringToHex(str) {
-        if (typeof str !== 'string')
-          str = JSON.stringify(str)
+      // function stringToHex(str) {
+      //   if (typeof str !== 'string')
+      //     str = JSON.stringify(str)
 
-        const arr = []
-        for (let i = 0; i < str.length; i++) arr[i] = `00${str.charCodeAt(i).toString(16)}`.slice(-4)
+      //   const arr = []
+      //   for (let i = 0; i < str.length; i++) arr[i] = `00${str.charCodeAt(i).toString(16)}`.slice(-4)
 
-        return `\\u${arr.join('\\u')}`
-      }
+      //   return `\\u${arr.join('\\u')}`
+      // }
 
-      res.write(firstChunk ? stringToHex(chat) : `\n${stringToHex(chat)}`)
+      res.write(firstChunk ? JSON.stringify(chat) : `\n${JSON.stringify(chat)}`)
       firstChunk = false
     })
   }
