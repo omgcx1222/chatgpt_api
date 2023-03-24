@@ -32,7 +32,7 @@ router.post('/chat-process', auth, async (req, res) => {
           chat.text = stringToHex(chat.text)
 
         if (chat.detail?.choices) {
-          chat.choices = chat.detail?.choices?.map((item) => {
+          chat.detail.choices = chat.detail?.choices?.map((item) => {
             if (item?.delta?.content)
               item.delta.content = ''
             return item
