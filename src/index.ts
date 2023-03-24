@@ -31,25 +31,15 @@ router.post('/chat-process', auth, async (req, res) => {
         if (chat.text)
           chat.text = stringToHex(chat.text)
 
-        if (chat.detail?.choices) {
-          chat.detail.choices = chat.detail?.choices?.map((item) => {
-            if (item?.delta?.content)
-              item.delta.content = ''
-            return item
-          })
-        }
+        chat.detail = ''
+        // if (chat.detail?.choices) {
+        //   chat.detail.choices = chat.detail?.choices?.map((item) => {
+        //     if (item?.delta?.content)
+        //       item.delta.content = ''
+        //     return item
+        //   })
+        // }
       }
-      // if (chat.delta)
-      //   chat.delta = null
-      // if (chat.text)
-      //   chat.text = stringToHex(chat.text)
-      // if (chat.choices) {
-      //   chat.choices = chat.choices.map((item) => {
-      //     if (item.delta.context)
-      //       item.delta.context = stringToHex(item?.delta?.context)
-      //     return item
-      //   })
-      // }
 
       res.write(firstChunk ? JSON.stringify(chat) : `\n${JSON.stringify(chat)}`)
       firstChunk = false
