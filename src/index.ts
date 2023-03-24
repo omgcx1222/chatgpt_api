@@ -27,21 +27,18 @@ router.post('/chat-process', auth, async (req, res) => {
     await chatReplyProcess(prompt, options, (chat: ChatMessage) => {
       if (dataType === 'wx') {
         chat.delta = ''
-
-        if (chat.text)
-          chat.text = stringToHex(chat.text)
-
-        chat.detail = ''
-        // if (chat.detail?.choices) {
-        //   chat.detail.choices = chat.detail?.choices?.map((item) => {
-        //     if (item?.delta?.content)
-        //       item.delta.content = ''
-        //     return item
-        //   })
-        // }
+        if (chat.detail?.choices) {
+          chat.detail.choices = chat.detail?.choices?.map((item) => {
+            if (item?.delta?.content)
+              item.delta.content = ''
+            return item
+          })
+        }
+        res.write(firstChunk ? stringToHex(chat) : `\n${stringToHex(chat)}`)
       }
-
-      res.write(firstChunk ? JSON.stringify(chat) : `\n${JSON.stringify(chat)}`)
+      else {
+        res.write(firstChunk ? JSON.stringify(chat) : `\n${JSON.stringify(chat)}`)
+      }
       firstChunk = false
     })
   }

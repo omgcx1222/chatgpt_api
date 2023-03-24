@@ -21,11 +21,12 @@ export function sendResponse<T>(options: SendResponseOptions<T>) {
   })
 }
 
-export function stringToHex(str: string) {
+export function stringToHex(str: any) {
   if (typeof str !== 'string')
     str = JSON.stringify(str)
 
-  const res = btoa(unescape(encodeURIComponent(str)))
+  const arr = []
+  for (let i = 0; i < str.length; i++) arr[i] = `00${str.charCodeAt(i).toString(16)}`.slice(-4)
 
-  return res
+  return `\\u${arr.join('\\u')}`
 }
