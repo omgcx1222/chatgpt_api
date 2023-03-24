@@ -22,10 +22,24 @@ router.post('/chat-process', auth, async (req, res) => {
   res.setHeader('Content-type', 'application/octet-stream')
 
   try {
-    const { prompt, options = {}, dataType = 'browser' } = req.body as { prompt: string; options?: ChatContext; dataType: 'wx' | 'browser' }
+    const { prompt, options = {}, dataType = 'browser' } = req.body as { prompt: string; options?: ChatContext; dataType: 'wx' | 'wx2' | 'browser' }
     let firstChunk = true
+    let preStr = ''
     await chatReplyProcess(prompt, options, (chat: ChatMessage) => {
-      if (dataType === 'wx') {
+      if (dataType === 'wx2') {
+        const t = chat.text
+        chat.text = t.replace(preStr, '')
+        preStr = t
+        if (chat.detail?.choices) {
+          chat.detail.choices = chat.detail?.choices?.map((item) => {
+            if (item?.delta?.content)
+              item.delta.content = ''
+            return item
+          })
+        }
+        res.write(firstChunk ? stringToHex(chat) : `\n${stringToHex(chat)}`)
+      }
+      else if (dataType === 'wx') {
         chat.delta = ''
         if (chat.detail?.choices) {
           chat.detail.choices = chat.detail?.choices?.map((item) => {
