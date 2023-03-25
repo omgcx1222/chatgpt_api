@@ -35,7 +35,7 @@ const authCount = async (req, res, next) => {
     `
     const [result] = await exec(sql, [openid])
 
-    if (result.roleId === process.env.DEFAULT_ROLE_ID && result.count < 1)
+    if (Number(result.roleId) === Number(process.env.DEFAULT_ROLE_ID) && result.count < 1)
       throw new Error('次数不足')
 
     next()

@@ -27,9 +27,8 @@ const exec = (sql: string, values: string[]) => {
             resolve(data)
           }
         })
+        conn.release()
       }
-
-      conn.release()
     })
   })
 }
