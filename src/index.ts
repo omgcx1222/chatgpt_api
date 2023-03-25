@@ -1,7 +1,8 @@
 import express from 'express'
+import { exec } from './database'
 import type { ChatContext, ChatMessage } from './chatgpt'
 import { chatConfig, chatReplyProcess, currentModel } from './chatgpt'
-import { auth } from './middleware/auth'
+import { authCount } from './middleware/auth'
 import { isNotEmptyString } from './utils/is'
 import { stringToHex } from './utils'
 
@@ -18,7 +19,7 @@ app.all('*', (_, res, next) => {
   next()
 })
 
-router.post('/chat-process', auth, async (req, res) => {
+router.post('/chat-process', authCount, async (req, res) => {
   res.setHeader('Content-type', 'application/octet-stream')
 
   try {
@@ -54,6 +55,9 @@ router.post('/chat-process', auth, async (req, res) => {
     res.write(JSON.stringify(error))
   }
   finally {
+    const { openid } = req.body as { openid: string }
+    const sql = 'UPDATE users SET count = count - 1 WHERE openid = ?'
+    exec(sql, [openid])
     res.end()
   }
 })
