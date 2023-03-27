@@ -33,6 +33,7 @@ const authCount = async (req, res, next) => {
       (SELECT name FROM roles WHERE id = u.role_id) role
       FROM users u WHERE openid = ?
     `
+
     const [result] = await exec(sql, [openid])
 
     if (Number(result.roleId) === Number(process.env.DEFAULT_ROLE_ID) && result.count < 1)
