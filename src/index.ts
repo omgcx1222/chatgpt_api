@@ -9,7 +9,7 @@ const app = express()
 const router = express.Router()
 
 // app.use(express.static('public'))
-app.use(express.urlencoded({ extended: true }))
+// app.use(express.urlencoded({ extended: true }))
 app.use(express.json())
 
 app.all('*', (_, res, next) => {
